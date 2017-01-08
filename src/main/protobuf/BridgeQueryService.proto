@@ -1,0 +1,67 @@
+//syntax = "proto2";
+
+option java_package = "cn.edu.fudan.dsm.basic.coprocessor.generated";
+option java_outer_classname = "BridgeQueryProtos";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+option optimize_for = SPEED;
+
+message BuildIndexRequest {
+    required string ChannelCode = 1;
+    optional int32 Wr = 2 [default = 1024];
+    optional int32 Wu = 3 [default = 50];
+    optional int32 Ur = 4 [default = 6];
+    optional bool Er = 5 [default = false];
+}
+
+message BuildIndexResponse {
+    required bool success = 1;
+}
+
+message QueryRequest {
+    required string ChannelCode = 1;
+    optional int32 Wr = 2 [default = 1024];
+    optional int32 Wu = 3 [default = 50];
+    optional int32 Ur = 4 [default = 6];
+    optional bool Er = 5 [default = false];
+    optional double Epsilon = 6 [default = 8];
+    required int32 M = 7 [default = 128];
+    repeated double means = 8 [packed = true];
+    optional bool useCache = 9 [default = true];
+}
+
+message QueryResponse {
+    repeated int64 positionsBegin = 1 [packed = true];
+    repeated int64 positionsEnd = 2 [packed = true];
+    repeated int32 cntCandidates = 3 [packed = true];
+}
+
+message ScanDataRequest {
+    required string ChannelCode = 1;
+    optional int32 Wr = 2 [default = 1024];
+    optional int32 Wu = 3 [default = 50];
+    optional int32 Ur = 4 [default = 6];
+    optional bool Er = 5 [default = false];
+    optional double Epsilon = 6 [default = 8];
+    required int32 M = 7 [default = 128];
+    repeated float query = 8 [packed = true];
+    repeated int64 positionsBegin = 9 [packed = true];
+    repeated int64 positionsEnd = 10 [packed = true];
+}
+
+message ScanDataResponse {
+    repeated int64 answersPosition = 1 [packed = true];
+    repeated double answersDistance = 2 [packed = true];
+    repeated int64 positionsBegin = 3 [packed = true];
+    repeated int64 positionsEnd = 4 [packed = true];
+    required int32 cntCandidate = 5;
+}
+
+service BridgeQueryService {
+    rpc buildIndex(BuildIndexRequest)
+    returns (BuildIndexResponse);
+    rpc query(QueryRequest)
+    returns (QueryResponse);
+    rpc scanData(ScanDataRequest)
+    returns (ScanDataResponse);
+}
